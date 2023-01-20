@@ -4,6 +4,21 @@
  */
 package view;
 
+import REGEX.ValidaCampos;
+import connection.ConnectionFactory;
+import controller.ClienteController;
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import model.bean.Cliente;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.view.JasperViewer;
+import tableModel.ClienteTableModel;
+
 /**
  *
  * @author aluno
@@ -13,9 +28,36 @@ public class ClienteView extends javax.swing.JFrame {
     /**
      * Creates new form ClienteView
      */
+    public Cliente cliente;
+    private boolean alterar = false;
+
+    ClienteController clienteController = new ClienteController();
+    ClienteTableModel tableModelCliente;
+
     public ClienteView() {
         initComponents();
+        this.getClientes();
+        jTable1.setModel(tableModelCliente);
     }
+
+    private void getClientes() {
+        tableModelCliente = new ClienteTableModel(clienteController.read());
+        jTable1.setModel(tableModelCliente);
+    }
+
+    private void limpaCampos() {
+        jTextFieldNome.setText("");
+        jTextFieldProfissao.setText("");
+        jFormattedTextFieldTelefone.setText("");
+        jFormattedTextFieldCpf.setText("");
+        jTextFieldEmail.setText("");
+        jFormattedTextFieldCep.setText("");
+        jTextFieldLogradouro.setText("");
+        jTextFieldNumero.setText("");
+        jTextFieldComplemento.setText("");
+    }
+
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -46,12 +88,30 @@ public class ClienteView extends javax.swing.JFrame {
         jFormattedTextFieldTelefone = new javax.swing.JFormattedTextField();
         jTextFieldEmail = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
-        jTextFieldBuscar = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        jTextFieldBusca = new javax.swing.JTextField();
+        jButtonCadastrar = new javax.swing.JButton();
         jButtonAtualizar = new javax.swing.JButton();
         jButtonExcluir = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jButtonImprimir = new javax.swing.JButton();
+        jComboBoxBusca = new javax.swing.JComboBox<>();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Cadastro de Clientes");
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                formMouseClicked(evt);
+            }
+        });
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 3, 18)); // NOI18N
         jLabel1.setText("Cadastro de Clientes");
@@ -70,7 +130,7 @@ public class ClienteView extends javax.swing.JFrame {
 
         jLabel8.setText("Logradouro:");
 
-        jLabel9.setText("Número");
+        jLabel9.setText("Numero");
 
         jLabel10.setText("Complemento");
 
@@ -87,18 +147,72 @@ public class ClienteView extends javax.swing.JFrame {
         }
 
         try {
-            jFormattedTextFieldTelefone.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("(##)#####-####")));
+            jFormattedTextFieldTelefone.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("(##)#####-######")));
         } catch (java.text.ParseException ex) {
             ex.printStackTrace();
         }
 
         jLabel11.setText("Buscar:");
 
-        jButton1.setText("Cadastrar");
+        jTextFieldBusca.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                jTextFieldBuscaKeyTyped(evt);
+            }
+        });
 
+        jButtonCadastrar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/add.png"))); // NOI18N
+        jButtonCadastrar.setText("Cadastrar");
+        jButtonCadastrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCadastrarActionPerformed(evt);
+            }
+        });
+
+        jButtonAtualizar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/insert.png"))); // NOI18N
         jButtonAtualizar.setText("Atualizar");
+        jButtonAtualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAtualizarActionPerformed(evt);
+            }
+        });
 
+        jButtonExcluir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/delete.png"))); // NOI18N
         jButtonExcluir.setText("Excluir");
+        jButtonExcluir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonExcluirActionPerformed(evt);
+            }
+        });
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable1MouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(jTable1);
+
+        jButtonImprimir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/print.png"))); // NOI18N
+        jButtonImprimir.setText("Imprimir");
+        jButtonImprimir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonImprimirActionPerformed(evt);
+            }
+        });
+
+        jComboBoxBusca.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nenhum", "Nome" }));
+        jComboBoxBusca.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxBuscaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -147,18 +261,28 @@ public class ClienteView extends javax.swing.JFrame {
                             .addComponent(jLabel9)
                             .addComponent(jLabel10)
                             .addComponent(jLabel11))
-                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextFieldComplemento, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(jTextFieldBuscar, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                    .addComponent(jButton1)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(jButtonAtualizar)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(jButtonExcluir))))))
-                .addContainerGap(252, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(30, 30, 30)
+                                .addComponent(jButtonCadastrar)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButtonAtualizar)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButtonExcluir)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButtonImprimir))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jComboBoxBusca, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jTextFieldBusca, javax.swing.GroupLayout.PREFERRED_SIZE, 365, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jTextFieldComplemento, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(45, 45, 45)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 521, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -174,10 +298,10 @@ public class ClienteView extends javax.swing.JFrame {
                     .addComponent(jLabel2)
                     .addComponent(jTextFieldProfissao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jFormattedTextFieldTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
-                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(jFormattedTextFieldTelefone, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(jFormattedTextFieldCpf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -201,20 +325,167 @@ public class ClienteView extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel10)
                     .addComponent(jTextFieldComplemento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(17, 17, 17)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextFieldBusca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel11)
-                    .addComponent(jTextFieldBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(34, 34, 34)
+                    .addComponent(jComboBoxBusca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonExcluir)
-                    .addComponent(jButton1)
-                    .addComponent(jButtonAtualizar))
-                .addContainerGap(202, Short.MAX_VALUE))
+                    .addComponent(jButtonCadastrar)
+                    .addComponent(jButtonAtualizar)
+                    .addComponent(jButtonImprimir))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButtonCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCadastrarActionPerformed
+            clienteController.create(jTextFieldProfissao.getText(),
+                    jTextFieldNome.getText(),
+                    jFormattedTextFieldTelefone.getText(),
+                    jFormattedTextFieldCpf.getText(),
+                    jTextFieldEmail.getText(),
+                    jFormattedTextFieldCep.getText(),
+                    jTextFieldLogradouro.getText(),
+                    jTextFieldNumero.getText(),
+                    jTextFieldComplemento.getText());
+            this.limpaCampos();
+
+        
+
+        this.getClientes();
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonCadastrarActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        // this.getListaClientes();
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowOpened
+
+    private void jButtonAtualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAtualizarActionPerformed
+
+        for (int i = 0; i < clienteController.read().size(); i++) {
+            if (clienteController.read().get(i).getCpf().equals(jTable1.getValueAt(jTable1.getSelectedRow(), 1))) {
+
+                clienteController.update(jTextFieldProfissao.getText(),
+                        jTextFieldNome.getText(),
+                        jFormattedTextFieldTelefone.getText(),
+                        jFormattedTextFieldCpf.getText(),
+                        jTextFieldEmail.getText(),
+                        jFormattedTextFieldCep.getText(),
+                        jTextFieldLogradouro.getText(),
+                        jTextFieldNumero.getText(),
+                        jTextFieldComplemento.getText(),
+                        clienteController.read().get(i).getId_cliente());
+            }
+
+        }
+
+        this.getClientes();
+        this.limpaCampos();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonAtualizarActionPerformed
+
+    private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formMouseClicked
+
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
+        for (int i = 0; i < clienteController.read().size(); i++) {
+            if (jTable1.getValueAt(jTable1.getSelectedRow(), 1).equals(clienteController.read().get(i).getCpf())) {
+                jTextFieldNome.setText(clienteController.read().get(i).getNome());
+                jTextFieldProfissao.setText(clienteController.read().get(i).getProfissao());
+                jFormattedTextFieldTelefone.setText(clienteController.read().get(i).getTelefone());
+                jFormattedTextFieldCpf.setText(clienteController.read().get(i).getCpf());
+                jTextFieldEmail.setText(clienteController.read().get(i).getEmail());
+                jFormattedTextFieldCep.setText(clienteController.read().get(i).getCep());
+                jTextFieldLogradouro.setText(clienteController.read().get(i).getLogradouro());
+                jTextFieldNumero.setText(clienteController.read().get(i).getNumero());
+                jTextFieldComplemento.setText(clienteController.read().get(i).getComplemento());
+
+            }
+        }
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTable1MouseClicked
+
+    private void jButtonExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExcluirActionPerformed
+        for (int i = 0; i < clienteController.read().size(); i++) {
+            if (clienteController.read().get(i).getCpf() != jTable1.getValueAt(jTable1.getSelectedRow(), 1)) {
+                clienteController.delete(clienteController.read().get(i).getId_cliente());
+            }
+        }
+        this.getClientes();
+        this.limpaCampos();
+        //this.getListaClientes();
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonExcluirActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        
+// TODO add your handling code here:
+    }//GEN-LAST:event_formWindowClosing
+
+    private void jButtonImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonImprimirActionPerformed
+
+        Connection con = ConnectionFactory.getConnection();
+
+        String src = "src/reports/ListaClientes.jasper";
+
+        JasperPrint jasperPrint = null;
+        Map parameters = new HashMap();
+
+        for (int i = 0; i < clienteController.read().size(); i++) {
+            parameters.put("id_cliente", clienteController.read().get(i).getId_cliente());
+        }
+
+        try {
+            jasperPrint = JasperFillManager.fillReport(src, parameters, con);
+        } catch (JRException ex) {
+            System.out.println("Erro ao gerar relatórios: " + ex);
+        }
+
+        JasperViewer view = new JasperViewer(jasperPrint, false);
+        view.setVisible(true);
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonImprimirActionPerformed
+
+    private void jTextFieldBuscaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldBuscaKeyTyped
+ String chave = jTextFieldBusca.getText();
+        if (chave.equals("")) {
+            chave = String.valueOf(evt.getKeyChar());
+
+        } else if (evt.getKeyChar() != '\b') {
+            chave = chave + evt.getKeyChar();
+        }
+        switch (jComboBoxBusca.getSelectedIndex()) {
+            case 1:
+                tableModelCliente = new ClienteTableModel(clienteController.buscarClienteporNome(chave));
+                break;
+
+        }
+        jTable1.setModel(tableModelCliente);
+
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldBuscaKeyTyped
+
+    private void jComboBoxBuscaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxBuscaActionPerformed
+  jTextFieldBusca.setText("");
+        if (jComboBoxBusca.getSelectedIndex() == 0) {
+            jTable1.setModel(tableModelCliente);
+        }
+        jComboBoxBusca.requestFocus();        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBoxBuscaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -230,16 +501,24 @@ public class ClienteView extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ClienteView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ClienteView.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ClienteView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ClienteView.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ClienteView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ClienteView.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ClienteView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ClienteView.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -252,9 +531,11 @@ public class ClienteView extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonAtualizar;
+    private javax.swing.JButton jButtonCadastrar;
     private javax.swing.JButton jButtonExcluir;
+    private javax.swing.JButton jButtonImprimir;
+    private javax.swing.JComboBox<String> jComboBoxBusca;
     private javax.swing.JFormattedTextField jFormattedTextFieldCep;
     private javax.swing.JFormattedTextField jFormattedTextFieldCpf;
     private javax.swing.JFormattedTextField jFormattedTextFieldTelefone;
@@ -269,7 +550,9 @@ public class ClienteView extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JTextField jTextFieldBuscar;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTextField jTextFieldBusca;
     private javax.swing.JTextField jTextFieldComplemento;
     private javax.swing.JTextField jTextFieldEmail;
     private javax.swing.JTextField jTextFieldLogradouro;

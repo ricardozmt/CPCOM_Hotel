@@ -1,17 +1,17 @@
-
 package model.bean;
+
 public class Cliente {
-    
-   private int id_cliente;
-   private String profissao;
-   private String nome;
-   private String telefone;
-   private String cpf;
-   private String email;
-   private String cep;
-   private String logradouro;
-   private String numero;
-   private String complemento;
+
+    private int id_cliente;
+    private String profissao;
+    private String nome;
+    private String telefone;
+    private String cpf;
+    private String email;
+    private String cep;
+    private String logradouro;
+    private String numero;
+    private String complemento;
 
     public int getId_cliente() {
         return id_cliente;
@@ -92,9 +92,10 @@ public class Cliente {
     public void setComplemento(String complemento) {
         this.complemento = complemento;
     }
-   
-   
-        
-        
+
+    @Override
+    public String toString() {
+        return this.getNome();
+    }
 
 }

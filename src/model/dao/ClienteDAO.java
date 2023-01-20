@@ -18,6 +18,7 @@ public class ClienteDAO {
         Connection con = ConnectionFactory.getConnection();
         PreparedStatement stmt = null;
 
+        
         try {
             stmt = con.prepareStatement("INSERT INTO cliente (profissao, nome, telefone, cpf, email, cep, logradouro, numero, complemento) VALUES (?,?,?,?,?,?,?,?,? )");
             stmt.setString(1, cliente.getProfissao());
@@ -62,7 +63,7 @@ public class ClienteDAO {
 
         ArrayList<Cliente> listaCliente = new ArrayList();
         try {
-            stmt = con.prepareStatement("SELECT * FROM categoria ORDER BY id_cliente");
+            stmt = con.prepareStatement("SELECT * FROM cliente ORDER BY id_cliente");
             rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -124,7 +125,7 @@ public class ClienteDAO {
         PreparedStatement stmt = null;
 
         try {
-            stmt = con.prepareStatement("DELETE FROM cliente WHERE id_cliente = ?");
+            stmt = con.prepareStatement("delete from cliente where id_cliente =? ");
             stmt.setInt(1, cliente.getId_cliente());
 
             stmt.executeUpdate();
@@ -143,6 +144,7 @@ public class ClienteDAO {
         ResultSet rs = null;
 
         ArrayList<Cliente> listaCliente = new ArrayList<>();
+        
         try {
             stmt = con.prepareStatement("SELECT * FROM cliente WHERE nome LIKE ? ORDER by id_cliente");
             stmt.setString(1, "%" + nome + "%");
@@ -152,6 +154,10 @@ public class ClienteDAO {
                 Cliente cliente = new Cliente();
                 cliente.setId_cliente(rs.getInt("id_cliente"));
                 cliente.setNome(rs.getString("nome"));
+                cliente.setCpf(rs.getString("cpf"));
+                cliente.setTelefone(rs.getString("telefone"));
+                cliente.setProfissao(rs.getString("profissao"));
+                cliente.setEmail(rs.getString("email"));
 
                 listaCliente.add(cliente);
             }
